@@ -9,26 +9,31 @@ import java.awt.event.ActionListener;
  * program out put
  */
 public class foilmakerView extends JFrame implements ActionListener {
-    private JButton loginButton, Register;
-    private JLabel Username, Password, foilMaker;
+
+
 
 
     public static void main(String[] args) {
         foilmakerView f = new foilmakerView();
-        f.pack();
+//test GUI
         f.setVisible(true);
-        f.Login();//login GUI
+        //f.Login();
+        //f.pack();
+        f.Login2();
+        f.pack();
 
     }
-//login GUI
+//LOGIN GUI
     public void Login(){
+        JButton loginButton, Register;
+        JLabel Username, Password, foilMaker;
 
         this.setTitle("FoilMaker!");
         loginButton = new JButton("Login");
         Register = new JButton("Register");
         Username = new JLabel("Username");
         Password = new JLabel("Password");
-        foilMaker = new JLabel("FoilMaker!");
+        foilMaker = J("FoilMaker!");
 
 
 
@@ -67,7 +72,7 @@ public class foilmakerView extends JFrame implements ActionListener {
 
         panel.add(pC);
 
-        JPanel pS = new JPanel(new FlowLayout());
+        JPanel pS = new JPanel(new GridLayout(0,3));
         JLabel Newusercreated = new JLabel("New user created");
         pS.add(Newusercreated);
 
@@ -77,7 +82,37 @@ public class foilmakerView extends JFrame implements ActionListener {
 
     }
 
-    public JPanel createText(){//original Text
+    public void Login2(){
+        JLabel name = J("BOb");//"Bob will come from Controller.
+        Container c1 = this.getContentPane();
+        c1.setLayout(new BorderLayout());
+
+        JPanel panel = new JPanel(new GridLayout(0,1));
+        JPanel pN = new JPanel(new FlowLayout());
+        pN.add(name);
+
+        JButton SNG = new JButton("Start New Game");
+        JButton JaG = new JButton("Join a Game");
+
+        JPanel pC = new JPanel(new FlowLayout());
+        pC.add(SNG);
+        pC.add(JaG);
+
+        JPanel pS = new JPanel(new GridLayout(0,3));
+        JLabel Welcom = J("Welcome!");
+        pS.add(Welcom);
+
+        c1.add(pN, BorderLayout.NORTH);
+        c1.add(pC, BorderLayout.CENTER);
+        c1.add(pS, BorderLayout.SOUTH);
+
+
+
+
+
+    }
+//Create Original Text
+    public JPanel createText(){
         JPanel panel = new JPanel();
         panel.setLayout(new GridLayout(0,1));
         panel.setBorder(BorderFactory.createCompoundBorder());
@@ -85,18 +120,28 @@ public class foilmakerView extends JFrame implements ActionListener {
         panel.add(input);
         return panel;
     }
-    public JPanel inVisiblecreateText(){//passwordText
+    
+    //Create Password Text
+    public JPanel inVisiblecreateText(){
         JPanel panel = new JPanel();
         panel.setLayout(new GridLayout(0,1));
         panel.setBorder(BorderFactory.createCompoundBorder());
         JPasswordField input = new JPasswordField(10);
+
+
         panel.add(input);
         return panel;
     }
-  
-  
-  
+//for input name variable. 
+    public JLabel J(String name){
+        JLabel J = new JLabel(name);
+        return J;
+    }
+
+
     public void actionPerformed(ActionEvent e){
+
+
 
     }
 
