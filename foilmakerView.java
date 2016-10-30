@@ -20,8 +20,11 @@ public class foilmakerView extends JFrame implements ActionListener {
         //f.setResizable(false);
         //f.Login();
         //f.Login2();
-        f.JoinGame();
+        //f.JoinGame();
         //f.StartnewGame();
+        //f.Waiting();
+        //f.Suggestionwords();
+        f.pickoption();
         f.setVisible(true);
 
     }
@@ -208,6 +211,138 @@ public class foilmakerView extends JFrame implements ActionListener {
 
     }
 
+    public void Waiting(){
+        GridBagConstraints s= new GridBagConstraints();
+        s.fill = GridBagConstraints.BOTH;
+        s.gridwidth=0;
+        s.weightx=0;
+        s.weighty=0;
+
+        this.setTitle("FoilMaker");
+        JLabel name = J("Bob");//"Bob" will come from Controller
+        Container c1 = this.getContentPane();
+        c1.setLayout(new BorderLayout());
+
+        JPanel pN = new JPanel(new FlowLayout());
+        pN.add(name);
+
+        JPanel pC = new JPanel(new GridBagLayout());
+        JLabel C = J("Waiting for leader ...");
+        pC.add(C);
+
+
+
+        JPanel pS = new JPanel(new GridLayout(0,1));
+        JLabel GS = J("Joined game: waiting for leader");
+        pS.add(GS);
+
+        c1.add(pN, BorderLayout.NORTH);
+        c1.add(pC, BorderLayout.CENTER);
+        c1.add(pS,BorderLayout.SOUTH);
+
+
+    }
+
+    public void Suggestionwords(){
+        GridBagConstraints s= new GridBagConstraints();
+        s.fill = GridBagConstraints.BOTH;
+        s.gridwidth=0;
+        s.weightx=0;
+        s.weighty=0;
+
+        this.setTitle("FoilMaker");
+        JLabel name = J("Bob");//"Bob" will come from Controller
+        Container c1 = this.getContentPane();
+        c1.setLayout(new BorderLayout());
+
+        JPanel pN = new JPanel(new FlowLayout());
+        pN.add(name);
+
+        JLabel S1 = J("What is the word for");
+        JPanel pC = new JPanel(new BorderLayout());
+        JPanel pC1 = new JPanel(new BorderLayout());
+        pC1.setBorder(BorderFactory.createTitledBorder(""));
+        pC.setBorder(BorderFactory.createCompoundBorder());
+
+        pC1.add(S1,BorderLayout.NORTH);
+        pC1.add(createTextArea(10,5,Color.orange),BorderLayout.CENTER);
+
+        JPanel pC2 = new JPanel(new FlowLayout());
+        pC2.setBorder(BorderFactory.createTitledBorder("Your Suggestion"));
+        JPanel text = createText(10);
+        pC2.add(text);
+
+        pC.add(pC1, BorderLayout.NORTH);
+        pC.add(pC2,BorderLayout.CENTER);
+
+        JButton SG = new JButton("Submit Suggestion");
+        JPanel pC3 = new JPanel(new GridBagLayout());
+        pC3.add(SG);
+        pC.add(pC3, BorderLayout.SOUTH);
+
+        JPanel pS = new JPanel(new GridLayout(0,1));
+        JLabel GS = J("Enter your suggestion");
+        pS.add(GS);
+
+        c1.add(pN, BorderLayout.NORTH);
+        c1.add(pC, BorderLayout.CENTER);
+        c1.add(pS,BorderLayout.SOUTH);
+    }
+
+    public void pickoption(){
+        GridBagConstraints s= new GridBagConstraints();
+        s.fill = GridBagConstraints.BOTH;
+        s.gridwidth=0;
+        s.weightx=0;
+        s.weighty=0;
+
+        this.setTitle("FoilMaker");
+        JLabel name = J("Bob");//"Bob" will come from Controller
+        Container c1 = this.getContentPane();
+        c1.setLayout(new BorderLayout());
+
+        JPanel pN = new JPanel(new FlowLayout());
+        pN.add(name);
+
+        JLabel S1 = J("Pick your option below");
+        JPanel pC = new JPanel(new BorderLayout());
+        JPanel pC1 = new JPanel(new GridBagLayout());
+        pC1.setBorder(BorderFactory.createTitledBorder(""));
+        pC.setBorder(BorderFactory.createCompoundBorder());
+
+        pC1.add(S1);
+
+        JPanel pC2 = new JPanel(new GridBagLayout());
+        pC2.setBorder(BorderFactory.createTitledBorder(""));
+        String[] choice = {"1","2","3"};//random choice
+        JRadioButton[] Choice = new JRadioButton[choice.length];
+        for(int i=0;i<choice.length;i++){
+            Choice[i] = new JRadioButton(choice[i]);
+            pC2.add(Choice[i],s);
+
+        }
+
+        //pC2.add(text);
+
+        pC.add(pC1, BorderLayout.NORTH);
+        pC.add(pC2,BorderLayout.CENTER);
+
+        JButton SG = new JButton("Submit Option");
+        JPanel pC3 = new JPanel(new GridBagLayout());
+        pC3.add(SG);
+        pC.add(pC3, BorderLayout.SOUTH);
+
+        JPanel pS = new JPanel(new GridLayout(0,1));
+        JLabel GS = J("Pick your choice");
+        pS.add(GS);
+
+        c1.add(pN, BorderLayout.NORTH);
+        c1.add(pC, BorderLayout.CENTER);
+        c1.add(pS,BorderLayout.SOUTH);
+
+
+    }
+
 
 
 
@@ -227,8 +362,7 @@ public class foilmakerView extends JFrame implements ActionListener {
         JTextArea output = new JTextArea(a,b);
         output.setEditable(false);
         output.setBackground(y);
-        JScrollPane scroll = new JScrollPane(output);
-        panel.add(scroll);
+        panel.add(output);
         return panel;
     }
 
