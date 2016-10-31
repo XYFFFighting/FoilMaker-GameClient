@@ -13,21 +13,7 @@ public class foilmakerView extends JFrame implements ActionListener {
 
 
 
-    public static void main(String[] args) {
-        foilmakerView f = new foilmakerView();
-//test GUI
-        f.setSize(300,500);
-        //f.setResizable(false);
-        //f.Login();
-        //f.Login2();
-        //f.JoinGame();
-        //f.StartnewGame();
-        //f.Waiting();
-        //f.Suggestionwords();
-        f.pickoption();
-        f.setVisible(true);
 
-    }
 //LOGIN GUI
     public void Login(){
         JButton loginButton, Register;
@@ -322,6 +308,7 @@ public class foilmakerView extends JFrame implements ActionListener {
 
         }
 
+
         //pC2.add(text);
 
         pC.add(pC1, BorderLayout.NORTH);
@@ -340,6 +327,51 @@ public class foilmakerView extends JFrame implements ActionListener {
         c1.add(pC, BorderLayout.CENTER);
         c1.add(pS,BorderLayout.SOUTH);
 
+
+    }
+
+    public void receiveResults(){
+        GridBagConstraints s= new GridBagConstraints();
+        s.fill = GridBagConstraints.BOTH;
+        s.gridwidth=0;
+        s.weightx=0;
+        s.weighty=0;
+
+        this.setTitle("FoilMaker");
+        JLabel name = J("Bob");//"Bob" will come from Controller
+        Container c1 = this.getContentPane();
+        c1.setLayout(new BorderLayout());
+
+        JPanel pN = new JPanel(new FlowLayout());
+        pN.add(name);
+
+        JPanel pC = new JPanel(new BorderLayout());
+        JPanel pC1 = new JPanel(new GridBagLayout());
+        pC1.setBorder(BorderFactory.createTitledBorder("Round Result"));
+        pC.setBorder(BorderFactory.createCompoundBorder());
+
+
+        pC1.add(createTextArea(5,23,Color.orange));
+
+        JPanel pC2 = new JPanel(new FlowLayout());
+        pC2.setBorder(BorderFactory.createTitledBorder("Overall Results"));
+        pC2.add(createTextArea(15,23,Color.yellow));
+
+        pC.add(pC1, BorderLayout.NORTH);
+        pC.add(pC2,BorderLayout.CENTER);
+
+        JButton SG = new JButton("Next Round");
+        JPanel pC3 = new JPanel(new GridBagLayout());
+        pC3.add(SG);
+        pC.add(pC3, BorderLayout.SOUTH);
+
+        JPanel pS = new JPanel(new GridLayout(0,1));
+        JLabel GS = J("Click <Next Round> when ready");
+        pS.add(GS);
+
+        c1.add(pN, BorderLayout.NORTH);
+        c1.add(pC, BorderLayout.CENTER);
+        c1.add(pS,BorderLayout.SOUTH);
 
     }
 
