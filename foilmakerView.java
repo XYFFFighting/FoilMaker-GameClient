@@ -9,26 +9,44 @@ import java.awt.event.ActionListener;
  * program out put
  */
 public class foilmakerView extends JFrame implements ActionListener {
+    JPanel mainPanel = new JPanel();
+    CardLayout layout = new CardLayout();
 
 
+public void run(){
+    mainPanel.setLayout(layout);
+    mainPanel.add(Login(),"1");
+    mainPanel.add(Login2(),"2");
+    mainPanel.add(StartnewGame(),"3");
+    mainPanel.add(JoinGame(),"4");
 
+    add(mainPanel);
+    setLocation(300,500);
+    setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    pack();
+    layout.show(mainPanel,"1");
+    setVisible(true);
+
+
+}
 
 
 //LOGIN GUI
-    public void Login(){
+    public JPanel Login(){
         JButton loginButton, Register;
         JLabel Username, Password, foilMaker;
 
         this.setTitle("FoilMaker!");
-        loginButton = new JButton("Login");
+
         Register = new JButton("Register");
+        Register.addActionListener(this);
         Username = J("Username");
         Password = J("Password");
         foilMaker = J("FoilMaker!");
 
 
 
-        Container c1 = this.getContentPane();
+        JPanel c1 = new JPanel();
         c1.setLayout(new BorderLayout());
 
         JPanel panel = new JPanel(new GridLayout(0,1));
@@ -41,7 +59,12 @@ public class foilmakerView extends JFrame implements ActionListener {
 
         JPanel login = new JPanel(new FlowLayout());
         login.add(Username);
-        login.add(createText(10));
+        final JTextField input = new JTextField(10);
+        JPanel t1 = new JPanel(new GridBagLayout());
+        t1.add(input);
+        login.add(t1);
+
+
         JPanel login3 = new JPanel(new FlowLayout());
         login3.add(Password);
         login3.add(inVisiblecreateText());
@@ -51,6 +74,17 @@ public class foilmakerView extends JFrame implements ActionListener {
         login2.setBorder(BorderFactory.createTitledBorder(""));
         login2.add(login);
         login2.add(login3);
+        loginButton = new JButton("Login");
+        loginButton.addActionListener(
+                new ActionListener() {
+                    public void actionPerformed(ActionEvent e){
+                        String name = input.getText();
+                        System.out.println(name+" is logging in");
+                        layout.show(mainPanel,"2");
+                        
+                    }
+                }
+        );
 
 
         JPanel loginbutton = new JPanel(new GridBagLayout());
@@ -72,12 +106,13 @@ public class foilmakerView extends JFrame implements ActionListener {
         c1.add(panel, BorderLayout.CENTER);
         c1.add(pS, BorderLayout.SOUTH);
 
+return c1;
     }
 
-    public void Login2(){
+    public JPanel Login2(){
         this.setTitle("FoilMaker");
         JLabel name = J("BOb");//"Bob will come from Controller. J is a method
-        Container c1 = this.getContentPane();
+        JPanel c1 = new JPanel();
         c1.setLayout(new BorderLayout());
 
         JPanel panel = new JPanel(new GridLayout(0,1));
@@ -85,7 +120,23 @@ public class foilmakerView extends JFrame implements ActionListener {
         pN.add(name);
 
         JButton SNG = new JButton("Start New Game");
+        SNG.addActionListener(
+                new ActionListener() {
+                    public void actionPerformed(ActionEvent e){
+                        layout.show(mainPanel,"3");
+
+                    }
+                }
+        );
         JButton JaG = new JButton("Join a Game");
+        JaG.addActionListener(
+                new ActionListener() {
+                    public void actionPerformed(ActionEvent e){
+                        layout.show(mainPanel,"4");
+
+                    }
+                }
+        );
 
         JPanel pC = new JPanel(new GridBagLayout());
         pC.add(SNG);
@@ -98,11 +149,11 @@ public class foilmakerView extends JFrame implements ActionListener {
         c1.add(pN, BorderLayout.NORTH);
         c1.add(pC, BorderLayout.CENTER);
         c1.add(pS, BorderLayout.SOUTH);
-
+return c1;
     }
     //when press the SNG Button
 
-    public void StartnewGame(){//when press the SNG button
+    public JPanel StartnewGame(){//when press the SNG button
 
         GridBagConstraints s= new GridBagConstraints();
         s.fill = GridBagConstraints.BOTH;
@@ -112,7 +163,7 @@ public class foilmakerView extends JFrame implements ActionListener {
 
         this.setTitle("FoilMaker");
         JLabel name = J("Bob");//"Bob" will come from Controller
-        Container c1 = this.getContentPane();
+        JPanel c1 = new JPanel();
         c1.setLayout(new BorderLayout());
 
         JPanel panel = new JPanel(new GridLayout(0,1));
@@ -151,12 +202,12 @@ public class foilmakerView extends JFrame implements ActionListener {
         c1.add(pC, BorderLayout.CENTER);
         c1.add(pS, BorderLayout.SOUTH);
 
-
+return c1;
 
 
     }//start a new game
 
-    public void JoinGame(){//when pree the join a game botton
+    public JPanel JoinGame(){//when pree the join a game botton
         GridBagConstraints s= new GridBagConstraints();
         s.fill = GridBagConstraints.BOTH;
         s.gridwidth=0;
@@ -165,7 +216,7 @@ public class foilmakerView extends JFrame implements ActionListener {
 
         this.setTitle("FoilMaker");
         JLabel name = J("Bob");//"Bob" will come from Controller
-        Container c1 = this.getContentPane();
+        JPanel c1 = new JPanel();
         c1.setLayout(new BorderLayout());
 
         JPanel pN = new JPanel(new FlowLayout());
@@ -194,10 +245,10 @@ public class foilmakerView extends JFrame implements ActionListener {
         c1.add(pC, BorderLayout.CENTER);
         c1.add(pS,BorderLayout.SOUTH);
 
-
+return c1;
     }
 
-    public void Waiting(){
+    public JPanel Waiting(){
         GridBagConstraints s= new GridBagConstraints();
         s.fill = GridBagConstraints.BOTH;
         s.gridwidth=0;
@@ -206,7 +257,7 @@ public class foilmakerView extends JFrame implements ActionListener {
 
         this.setTitle("FoilMaker");
         JLabel name = J("Bob");//"Bob" will come from Controller
-        Container c1 = this.getContentPane();
+        JPanel c1 = new JPanel();
         c1.setLayout(new BorderLayout());
 
         JPanel pN = new JPanel(new FlowLayout());
@@ -226,10 +277,10 @@ public class foilmakerView extends JFrame implements ActionListener {
         c1.add(pC, BorderLayout.CENTER);
         c1.add(pS,BorderLayout.SOUTH);
 
-
+return c1;
     }
 
-    public void Suggestionwords(){
+    public JPanel Suggestionwords(){
         GridBagConstraints s= new GridBagConstraints();
         s.fill = GridBagConstraints.BOTH;
         s.gridwidth=0;
@@ -238,7 +289,7 @@ public class foilmakerView extends JFrame implements ActionListener {
 
         this.setTitle("FoilMaker");
         JLabel name = J("Bob");//"Bob" will come from Controller
-        Container c1 = this.getContentPane();
+        JPanel c1 = new JPanel();
         c1.setLayout(new BorderLayout());
 
         JPanel pN = new JPanel(new FlowLayout());
@@ -273,9 +324,10 @@ public class foilmakerView extends JFrame implements ActionListener {
         c1.add(pN, BorderLayout.NORTH);
         c1.add(pC, BorderLayout.CENTER);
         c1.add(pS,BorderLayout.SOUTH);
+        return c1;
     }
 
-    public void pickoption(){
+    public JPanel pickoption(){
         GridBagConstraints s= new GridBagConstraints();
         s.fill = GridBagConstraints.BOTH;
         s.gridwidth=0;
@@ -284,7 +336,7 @@ public class foilmakerView extends JFrame implements ActionListener {
 
         this.setTitle("FoilMaker");
         JLabel name = J("Bob");//"Bob" will come from Controller
-        Container c1 = this.getContentPane();
+        JPanel c1 = new JPanel();
         c1.setLayout(new BorderLayout());
 
         JPanel pN = new JPanel(new FlowLayout());
@@ -326,11 +378,11 @@ public class foilmakerView extends JFrame implements ActionListener {
         c1.add(pN, BorderLayout.NORTH);
         c1.add(pC, BorderLayout.CENTER);
         c1.add(pS,BorderLayout.SOUTH);
-
+return c1;
 
     }
 
-    public void receiveResults(){
+    public JPanel receiveResults(){
         GridBagConstraints s= new GridBagConstraints();
         s.fill = GridBagConstraints.BOTH;
         s.gridwidth=0;
@@ -339,7 +391,7 @@ public class foilmakerView extends JFrame implements ActionListener {
 
         this.setTitle("FoilMaker");
         JLabel name = J("Bob");//"Bob" will come from Controller
-        Container c1 = this.getContentPane();
+        JPanel c1 = new JPanel();
         c1.setLayout(new BorderLayout());
 
         JPanel pN = new JPanel(new FlowLayout());
@@ -372,7 +424,7 @@ public class foilmakerView extends JFrame implements ActionListener {
         c1.add(pN, BorderLayout.NORTH);
         c1.add(pC, BorderLayout.CENTER);
         c1.add(pS,BorderLayout.SOUTH);
-
+return c1;
     }
 
 
@@ -417,6 +469,9 @@ public class foilmakerView extends JFrame implements ActionListener {
 
 
     public void actionPerformed(ActionEvent e){
+
+
+
 
 
 
