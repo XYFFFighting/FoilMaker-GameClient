@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
 /**
  * Created by Yufei Xu on 10/22/2016.
@@ -11,7 +12,9 @@ import java.awt.event.ActionListener;
 public class foilmakerView extends JFrame implements ActionListener {
     JPanel mainPanel = new JPanel();
     CardLayout layout = new CardLayout();
-
+    private String send;
+    private String Name;
+    private String usertoken;
 
 public void run(){
     mainPanel.setLayout(layout);
@@ -19,6 +22,10 @@ public void run(){
     mainPanel.add(Login2(),"2");
     mainPanel.add(StartnewGame(),"3");
     mainPanel.add(JoinGame(),"4");
+    mainPanel.add(Waiting(),"5");
+    mainPanel.add(Suggestionwords(),"6");
+    mainPanel.add(pickoption(),"7");
+    mainPanel.add(receiveResults(),"8");
 
     add(mainPanel);
     setLocation(300,500);
@@ -34,12 +41,10 @@ public void run(){
 //LOGIN GUI
     public JPanel Login(){
         JButton loginButton, Register;
-        JLabel Username, Password, foilMaker;
+        final JLabel Username, Password, foilMaker;
 
         this.setTitle("FoilMaker!");
 
-        Register = new JButton("Register");
-        Register.addActionListener(this);
         Username = J("Username");
         Password = J("Password");
         foilMaker = J("FoilMaker!");
@@ -67,20 +72,53 @@ public void run(){
 
         JPanel login3 = new JPanel(new FlowLayout());
         login3.add(Password);
-        login3.add(inVisiblecreateText());
+        final JPasswordField pass = inVisiblecreateText();
+        login3.add(pass);
 
         JPanel login2 = new JPanel(new GridLayout(0,1));
 
         login2.setBorder(BorderFactory.createTitledBorder(""));
         login2.add(login);
         login2.add(login3);
+
+        Register = new JButton("Register");
+        Register.addActionListener(
+                new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        String name = input.getText();
+                        String password = String.valueOf(pass.getPassword());
+                        send="CREATENEWUSER"+"--"+name+"--"+password;
+                        try {
+                            foilmakerClient.sendmessage(send);
+                        } catch (IOException e1) {
+                            e1.printStackTrace();
+                        }
+                        System.out.println(getStatus());
+
+                    }
+                }
+        );
         loginButton = new JButton("Login");
         loginButton.addActionListener(
                 new ActionListener() {
                     public void actionPerformed(ActionEvent e){
                         String name = input.getText();
-                        System.out.println(name+" is logging in");
-                        layout.show(mainPanel,"2");
+                        String password = String.valueOf(pass.getPassword());
+                        send="LOGIN"+"--"+name+"--"+password;
+                        try{
+                            foilmakerClient.sendmessage(send);
+                        }catch (IOException e1){
+                            e1.printStackTrace();
+                        }
+                        if(getStatus().equals("SUCCESS")){
+
+                            usertoken = getUsertoken();
+                            Name = name;
+                            run();
+                            layout.show(mainPanel,"2");
+                        }
+                        else
+                            System.out.println(getStatus());
                         
                     }
                 }
@@ -111,7 +149,7 @@ return c1;
 
     public JPanel Login2(){
         this.setTitle("FoilMaker");
-        JLabel name = J("BOb");//"Bob will come from Controller. J is a method
+        JLabel name = J(Name);//"Bob will come from Controller. J is a method
         JPanel c1 = new JPanel();
         c1.setLayout(new BorderLayout());
 
@@ -123,7 +161,18 @@ return c1;
         SNG.addActionListener(
                 new ActionListener() {
                     public void actionPerformed(ActionEvent e){
-                        layout.show(mainPanel,"3");
+
+                        send = "STARTNEWGAME"+"--"+usertoken;
+                        System.out.println(send);
+                        try{
+                            foilmakerClient.sendmessage(send);
+                        }catch (IOException e1){
+                            e1.printStackTrace();
+                        }
+                        if(getStatus().equals("SUCCESS"))
+                            layout.show(mainPanel,"3");
+                        else
+                            System.out.println(getStatus());
 
                     }
                 }
@@ -162,11 +211,10 @@ return c1;
         s.weighty=0;
 
         this.setTitle("FoilMaker");
-        JLabel name = J("Bob");//"Bob" will come from Controller
+        JLabel name = J(Name);//"Bob" will come from Controller
         JPanel c1 = new JPanel();
         c1.setLayout(new BorderLayout());
 
-        JPanel panel = new JPanel(new GridLayout(0,1));
 
         JPanel pN = new JPanel(new FlowLayout());
         pN.add(name);
@@ -181,6 +229,16 @@ return c1;
         pC1.add(createText(4));
         pC.add(pC1);
         JButton SG = new JButton("Start Game");
+        //SG.setEnabled(false);
+        SG.addActionListener(
+                new ActionListener() {
+                    public void actionPerformed(ActionEvent e){
+                        send = "ALLPARTICIPANTSHAVEJOINED--"+usertoken+"--"+"key";//key will come from server
+                        layout.show(mainPanel,"6");
+
+                    }
+                }
+        );
         JPanel participants = new JPanel(new BorderLayout());
         participants.setBorder(BorderFactory.createTitledBorder("Participants"));
         participants.add(createTextArea(5,1, Color.YELLOW));
@@ -215,7 +273,7 @@ return c1;
         s.weighty=0;
 
         this.setTitle("FoilMaker");
-        JLabel name = J("Bob");//"Bob" will come from Controller
+        JLabel name = J(Name);//"Bob" will come from Controller
         JPanel c1 = new JPanel();
         c1.setLayout(new BorderLayout());
 
@@ -228,11 +286,28 @@ return c1;
         pC.setBorder(BorderFactory.createCompoundBorder());
 
         pC1.add(S1, s);
-
-        pC1.add(createText(4));
+final JTextField t1 = createText(4);
+        pC1.add(t1);
         pC.add(pC1);
 
         JButton SG = new JButton("Join Game");
+        SG.addActionListener(
+                new ActionListener() {
+                    public void actionPerformed(ActionEvent e){
+                        String key = t1.getText();
+                        send = "JOINGAME--"+usertoken+"--"+key;
+                        try{
+                            foilmakerClient.sendmessage(send);
+                        }catch (IOException e1){
+                            e1.printStackTrace();
+                        }
+                        if(getStatus().equals("SUCCESS"))
+                        layout.show(mainPanel,"5");
+                        else
+                            System.out.println(getStatus());
+                    }
+                }
+        );
         JPanel pC2 = new JPanel(new GridBagLayout());
         pC2.add(SG);
         pC.add(pC2);
@@ -256,7 +331,7 @@ return c1;
         s.weighty=0;
 
         this.setTitle("FoilMaker");
-        JLabel name = J("Bob");//"Bob" will come from Controller
+        JLabel name = J(Name);//"Bob" will come from Controller
         JPanel c1 = new JPanel();
         c1.setLayout(new BorderLayout());
 
@@ -288,7 +363,7 @@ return c1;
         s.weighty=0;
 
         this.setTitle("FoilMaker");
-        JLabel name = J("Bob");//"Bob" will come from Controller
+        JLabel name = J(Name);//"Bob" will come from Controller
         JPanel c1 = new JPanel();
         c1.setLayout(new BorderLayout());
 
@@ -306,15 +381,23 @@ return c1;
 
         JPanel pC2 = new JPanel(new FlowLayout());
         pC2.setBorder(BorderFactory.createTitledBorder("Your Suggestion"));
-        JPanel text = createText(10);
+        JTextField text = createText(10);
         pC2.add(text);
 
         pC.add(pC1, BorderLayout.NORTH);
         pC.add(pC2,BorderLayout.CENTER);
 
-        JButton SG = new JButton("Submit Suggestion");
+        JButton SS = new JButton("Submit Suggestion");
+        SS.addActionListener(
+                new ActionListener() {
+                    public void actionPerformed(ActionEvent e){
+                        layout.show(mainPanel,"7");
+
+                    }
+                }
+        );
         JPanel pC3 = new JPanel(new GridBagLayout());
-        pC3.add(SG);
+        pC3.add(SS);
         pC.add(pC3, BorderLayout.SOUTH);
 
         JPanel pS = new JPanel(new GridLayout(0,1));
@@ -335,7 +418,7 @@ return c1;
         s.weighty=0;
 
         this.setTitle("FoilMaker");
-        JLabel name = J("Bob");//"Bob" will come from Controller
+        JLabel name = J(Name);//"Bob" will come from Controller
         JPanel c1 = new JPanel();
         c1.setLayout(new BorderLayout());
 
@@ -366,9 +449,17 @@ return c1;
         pC.add(pC1, BorderLayout.NORTH);
         pC.add(pC2,BorderLayout.CENTER);
 
-        JButton SG = new JButton("Submit Option");
+        JButton SO = new JButton("Submit Option");
+        SO.addActionListener(
+                new ActionListener() {
+                    public void actionPerformed(ActionEvent e){
+                        layout.show(mainPanel,"8");
+
+                    }
+                }
+        );
         JPanel pC3 = new JPanel(new GridBagLayout());
-        pC3.add(SG);
+        pC3.add(SO);
         pC.add(pC3, BorderLayout.SOUTH);
 
         JPanel pS = new JPanel(new GridLayout(0,1));
@@ -390,7 +481,7 @@ return c1;
         s.weighty=0;
 
         this.setTitle("FoilMaker");
-        JLabel name = J("Bob");//"Bob" will come from Controller
+        JLabel name = J(Name);//"Bob" will come from Controller
         JPanel c1 = new JPanel();
         c1.setLayout(new BorderLayout());
 
@@ -412,9 +503,17 @@ return c1;
         pC.add(pC1, BorderLayout.NORTH);
         pC.add(pC2,BorderLayout.CENTER);
 
-        JButton SG = new JButton("Next Round");
+        JButton SR = new JButton("Next Round");
+        SR.addActionListener(
+                new ActionListener() {
+                    public void actionPerformed(ActionEvent e){
+                        layout.show(mainPanel,"6");
+
+                    }
+                }
+        );
         JPanel pC3 = new JPanel(new GridBagLayout());
-        pC3.add(SG);
+        pC3.add(SR);
         pC.add(pC3, BorderLayout.SOUTH);
 
         JPanel pS = new JPanel(new GridLayout(0,1));
@@ -431,13 +530,14 @@ return c1;
 
 
 //Create Original Text
-    public JPanel createText(int a){//a = length
+    public JTextField createText(int a){//a = length
+        /*
         JPanel panel = new JPanel();
         panel.setLayout(new GridLayout(0,1));
         panel.setBorder(BorderFactory.createCompoundBorder());
+        */
         JTextField input = new JTextField(a);
-        panel.add(input);
-        return panel;
+        return input;
     }
 
     public JPanel createTextArea(int a, int b, Color y){
@@ -451,21 +551,58 @@ return c1;
     }
 
     //Create Password Text
-    public JPanel inVisiblecreateText(){
+    public JPasswordField inVisiblecreateText(){
         JPanel panel = new JPanel();
         panel.setLayout(new GridLayout(0,1));
         panel.setBorder(BorderFactory.createCompoundBorder());
         JPasswordField input = new JPasswordField(10);
 
 
-        panel.add(input);
-        return panel;
+        return input;
     }
 //for input name variable.
     public JLabel J(String name){
         JLabel J = new JLabel(name);
         return J;
     }
+
+    public String getStatus(){
+        if(foilmakerClient.reply==null)
+            System.out.println("fuck you");
+        String msg =foilmakerClient.reply;
+        int l = msg.length();
+        int a=msg.indexOf("--");
+        String msg1 =msg.substring(a+2,l);
+        l = msg1.length();
+        a =msg1.indexOf("--");
+        String msg2 = msg1.substring(a,l);
+        l = msg2.length();
+        String msg3 = msg2.substring(0+2,l);
+        a=msg3.indexOf("--");
+        String status = msg3.substring(0,a);
+
+        return status;
+
+    }
+    public String getUsertoken(){
+        if(foilmakerClient.reply==null)
+            System.out.println("fuck you");
+        String msg =foilmakerClient.reply;
+        int l = msg.length();
+        int a=msg.indexOf("--");
+        String msg1 =msg.substring(a+2,l);
+        l = msg1.length();
+        a =msg1.indexOf("--");
+        String msg2 = msg1.substring(a,l);
+        l = msg2.length();
+        String msg3 = msg2.substring(0+2,l);
+        a=msg3.indexOf("--");
+        l=msg3.length();
+        String Usertoken = msg3.substring(a+2,l);
+        return Usertoken;
+
+    }
+
 
 
     public void actionPerformed(ActionEvent e){
