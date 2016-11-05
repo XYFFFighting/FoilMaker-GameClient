@@ -436,6 +436,21 @@ return c1;
 
         JPanel pC2 = new JPanel(new GridBagLayout());
         pC2.setBorder(BorderFactory.createTitledBorder(""));
+        
+        //Should randomly assign suggestions to the choices
+        JRadioButton[] choice = new JRadioButton[suggestion.length]; //replace "suggestions[]" w/ ROUDNOPTIONS
+        HashSet checkNumb = new HashSet();
+        for (int i = 0; i < suggestion.length; i++) {
+            int j = (int) (Math.random()*suggestion.length);
+            while (checkNumb.contains(j)) {
+                j = (int) (Math.random()*suggestion.length);
+            }
+            checkNumb.add(j);
+            choice[i] = new JRadioButton(suggestion[j]);
+            pC2.add(choice[i],s);
+        }
+        
+        /*
         String[] choice = {"1","2","3"};//random choice
         JRadioButton[] Choice = new JRadioButton[choice.length];
         for(int i=0;i<choice.length;i++){
@@ -443,6 +458,7 @@ return c1;
             pC2.add(Choice[i],s);
 
         }
+        */
 
 
         //pC2.add(text);
