@@ -3,7 +3,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.util.*;
 
 /**
  * Created by Yufei Xu on 10/22/2016.
@@ -16,6 +15,14 @@ public class foilmakerView extends JFrame implements ActionListener {
     private String send;
     private String Name;
     private String usertoken;
+    private String key;
+
+    public foilmakerView(){
+        String send = this.send;
+        String Name = this.Name;
+        String usertoken = this.usertoken;
+        String key = this.key;
+    }
 
 public void run(){
     mainPanel.setLayout(layout);
@@ -108,6 +115,7 @@ public void run(){
                         send="LOGIN"+"--"+name+"--"+password;
                         try{
                             foilmakerClient.sendmessage(send);
+                            System.out.println(getStatus());
                         }catch (IOException e1){
                             e1.printStackTrace();
                         }
@@ -115,7 +123,14 @@ public void run(){
 
                             usertoken = getUsertoken();
                             Name = name;
-                            run();
+                            mainPanel.add(Login2(),"2");
+                            mainPanel.add(StartnewGame(),"3");
+                            mainPanel.add(JoinGame(),"4");
+                            mainPanel.add(Waiting(),"5");
+                            mainPanel.add(Suggestionwords(),"6");
+                            mainPanel.add(pickoption(),"7");
+                            mainPanel.add(receiveResults(),"8");
+
                             layout.show(mainPanel,"2");
                         }
                         else
@@ -164,14 +179,24 @@ return c1;
                     public void actionPerformed(ActionEvent e){
 
                         send = "STARTNEWGAME"+"--"+usertoken;
-                        System.out.println(send);
+
                         try{
                             foilmakerClient.sendmessage(send);
                         }catch (IOException e1){
                             e1.printStackTrace();
                         }
-                        if(getStatus().equals("SUCCESS"))
+                        if(getStatus().equals("SUCCESS")){
+                            key = getKey();
+                            mainPanel.add(StartnewGame(),"3");
+                            mainPanel.add(JoinGame(),"4");
+                            mainPanel.add(Waiting(),"5");
+                            mainPanel.add(Suggestionwords(),"6");
+                            mainPanel.add(pickoption(),"7");
+                            mainPanel.add(receiveResults(),"8");
                             layout.show(mainPanel,"3");
+
+                        }
+
                         else
                             System.out.println(getStatus());
 
@@ -226,8 +251,10 @@ return c1;
         pC.setBorder(BorderFactory.createCompoundBorder());
 
         pC1.add(S1, s);
+        JTextField t = new JTextField(key);
+        t.setEditable(false);
 
-        pC1.add(createText(4));
+        pC1.add(t);
         pC.add(pC1);
         JButton SG = new JButton("Start Game");
         //SG.setEnabled(false);
@@ -436,21 +463,6 @@ return c1;
 
         JPanel pC2 = new JPanel(new GridBagLayout());
         pC2.setBorder(BorderFactory.createTitledBorder(""));
-        
-        //Should randomly assign suggestions to the choices
-        JRadioButton[] choice = new JRadioButton[suggestion.length]; //replace "suggestions[]" w/ ROUDNOPTIONS
-        HashSet checkNumb = new HashSet();
-        for (int i = 0; i < suggestion.length; i++) {
-            int j = (int) (Math.random()*suggestion.length);
-            while (checkNumb.contains(j)) {
-                j = (int) (Math.random()*suggestion.length);
-            }
-            checkNumb.add(j);
-            choice[i] = new JRadioButton(suggestion[j]);
-            pC2.add(choice[i],s);
-        }
-        
-        /*
         String[] choice = {"1","2","3"};//random choice
         JRadioButton[] Choice = new JRadioButton[choice.length];
         for(int i=0;i<choice.length;i++){
@@ -458,7 +470,6 @@ return c1;
             pC2.add(Choice[i],s);
 
         }
-        */
 
 
         //pC2.add(text);
@@ -618,6 +629,24 @@ return c1;
         String Usertoken = msg3.substring(a+2,l);
         return Usertoken;
 
+    }
+
+  public String getKey(){
+      if(foilmakerClient.reply==null)
+          System.out.println("fuck you");
+      String msg =foilmakerClient.reply;
+      int l = msg.length();
+      int a=msg.indexOf("--");
+      String msg1 =msg.substring(a+2,l);
+      l = msg1.length();
+      a =msg1.indexOf("--");
+      String msg2 = msg1.substring(a,l);
+      l = msg2.length();
+      String msg3 = msg2.substring(0+2,l);
+      a=msg3.indexOf("--");
+      l=msg3.length();
+      String Usertoken = msg3.substring(a+2,l);
+      return Usertoken;
     }
 
 
