@@ -12,6 +12,7 @@ public class foilmakerController {
     static Socket socket;
     public static void main(String[] args) throws IOException {
         foilmakerView f = new foilmakerView();
+        //foilmakerView f1 = new foilmakerView();
 
         int serverPort;
 
