@@ -1,6 +1,8 @@
+import javax.swing.*;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.util.Scanner;
 
 /**
@@ -8,12 +10,12 @@ import java.util.Scanner;
  *implements network programming bits, application protocol
  * users input
  */
-public class foilmakerController {
+public class foilmakerController{
     static Socket socket;
+    public static String reply;
+
     public static void main(String[] args) throws IOException {
         foilmakerView f = new foilmakerView();
-        //foilmakerView f1 = new foilmakerView();
-
         int serverPort;
 
         String serverIP = "localhost";
@@ -28,23 +30,53 @@ public class foilmakerController {
 
 
         }
-        f.run();
+f.run();
 
-//test GUI
-        //f.setSize(300,500);
-
-        //f.Login();
-        //f.Login2();
-        //f.JoinGame();
-        //f.StartnewGame();
-        //f.Waiting();
-        //f.Suggestionwords();
-        //f.pickoption();
-        //f.receiveResults();
-        //f.setVisible(true);
-    }
 }
 
 
 
+    public static String sendmessage(String inputLine) throws IOException {
+        PrintWriter outToServer = new PrintWriter(socket.getOutputStream(), true);
+        BufferedReader inFromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        outToServer.println(inputLine);
 
+
+        reply = null;
+        while (reply == null) {
+            try {
+                reply = inFromServer.readLine();
+                System.out.println(reply);
+            } catch (SocketTimeoutException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+        return reply;
+    }
+
+    public static String recieve() throws IOException {
+
+        socket.setSoTimeout(1000);
+        String a = null;
+        while(a==null){
+            try {
+                BufferedReader inFromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                reply = inFromServer.readLine();
+                a = reply;
+            }catch (SocketTimeoutException e){
+
+            }
+            try{
+                Thread.sleep(1000);
+            }catch (InterruptedException e){
+                e.printStackTrace();
+            }
+        }
+        socket.setSoTimeout(1000);
+        System.out.println(a);
+        return a;
+    }
+
+}
