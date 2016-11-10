@@ -9,13 +9,14 @@ import java.io.IOException;
  * implements Java GUI classes
  * program out put
  */
-public class foilmakerView extends JFrame implements ActionListener {
+public class foilmakerView extends JFrame implements ActionListener{
     JPanel mainPanel = new JPanel();
     CardLayout layout = new CardLayout();
     private String send;
     private String Name;
     private String usertoken;
     private String key;
+    private String msg;
 
     public foilmakerView(){
         String send = this.send;
@@ -41,8 +42,6 @@ public void run(){
     pack();
     layout.show(mainPanel,"1");
     setVisible(true);
-
-
 }
 
 
@@ -96,9 +95,9 @@ public void run(){
                         String name = input.getText();
                         String password = String.valueOf(pass.getPassword());
                         send="CREATENEWUSER"+"--"+name+"--"+password;
-                        String msg = new String();
+
                         try {
-                            msg= foilmakerClient.sendmessage(send);
+                            msg= foilmakerController.sendmessage(send);
                         } catch (IOException e1) {
                             e1.printStackTrace();
                         }
@@ -114,9 +113,8 @@ public void run(){
                         String name = input.getText();
                         String password = String.valueOf(pass.getPassword());
                         send="LOGIN"+"--"+name+"--"+password;
-                        String msg=new String();
                         try{
-                          msg=  foilmakerClient.sendmessage(send);
+                          msg=  foilmakerController.sendmessage(send);
                             System.out.println(getStatus(msg));
                         }catch (IOException e1){
                             e1.printStackTrace();
@@ -181,21 +179,37 @@ return c1;
                     public void actionPerformed(ActionEvent e){
 
                         send = "STARTNEWGAME"+"--"+usertoken;
-String msg = new String();
+
                         try{
-                          msg=  foilmakerClient.sendmessage(send);
+                          msg=  foilmakerController.sendmessage(send);
                         }catch (IOException e1){
                             e1.printStackTrace();
                         }
                         if(getStatus(msg).equals("SUCCESS")){
                             key = getKey(msg);
                             mainPanel.add(StartnewGame(),"3");
+                            layout.show(mainPanel,"3");
 //                            mainPanel.add(JoinGame(),"4");
 //                            mainPanel.add(Waiting(),"5");
 //                            mainPanel.add(Suggestionwords(),"6");
 //                            mainPanel.add(pickoption(),"7");
 //                            mainPanel.add(receiveResults(),"8");
-                            layout.show(mainPanel,"3");
+
+                            System.out.println("nimahai");
+                           SwingWorker worker=new SwingWorker() {
+                               @Override
+                               protected Object doInBackground() throws Exception {
+                                   try {
+                                       msg=foilmakerController.recieve();
+                                   }catch (IOException e1){
+                                       e1.printStackTrace();;
+                                   }
+                                   return null;
+                               }
+                           };
+                           worker.execute();
+
+
 
                         }
 
@@ -232,7 +246,6 @@ return c1;
 
     public JPanel StartnewGame(){//when press the SNG button
 
-        System.out.println("herereree");
         GridBagConstraints s= new GridBagConstraints();
         s.fill = GridBagConstraints.BOTH;
         s.gridwidth=0;
@@ -263,17 +276,18 @@ return c1;
         //SG.setEnabled(false);
         SG.addActionListener(
                 new ActionListener() {
-                    public void actionPerformed(ActionEvent e){
-                        send = "ALLPARTICIPANTSHAVEJOINED--"+usertoken+"--"+key;//key will come from server
-                       String msg=new String();
-                        try{
-                            msg=  foilmakerClient.sendmessage(send);
-                        }catch (IOException e1){
+                    public void actionPerformed(ActionEvent e) {
+
+                        send = "ALLPARTICIPANTSHAVEJOINED--" + usertoken + "--" + key;//key will come from server
+                        try {
+                            msg = foilmakerController.sendmessage(send);
+                        } catch (IOException e1) {
                             e1.printStackTrace();
                         }
-//                        (getStatus(msg).equals("SUCCESS")){
-                        layout.show(mainPanel,"6");
+                        if(getStatus(msg).equals("SUCCESS")){
+                            layout.show(mainPanel, "6");
 
+                        }
                     }
                 }
         );
@@ -336,7 +350,7 @@ final JTextField t1 = createText(4);
                         send = "JOINGAME--"+usertoken+"--"+key;
                         String msg=new String();
                         try{
-                           msg=foilmakerClient.sendmessage(send);
+                           msg=foilmakerController.sendmessage(send);
                         }catch (IOException e1){
                             e1.printStackTrace();
                         }
