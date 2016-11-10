@@ -33,7 +33,10 @@ public class foilmakerController{
 f.run();
 
 }
-
+public static void send(String inputLine)throws IOException{
+    PrintWriter outToServer = new PrintWriter(socket.getOutputStream(), true);
+    outToServer.println(inputLine);
+}
 
 
     public static String sendmessage(String inputLine) throws IOException {
@@ -43,7 +46,7 @@ f.run();
 
 
         reply = null;
-        while (reply == null) {
+        if(reply == null) {
             try {
                 reply = inFromServer.readLine();
                 System.out.println(reply);
@@ -58,7 +61,7 @@ f.run();
 
     public static String recieve() throws IOException {
 
-        socket.setSoTimeout(1000);
+        socket.setSoTimeout(10);
         String a = null;
         while(a==null){
             try {
@@ -69,12 +72,13 @@ f.run();
 
             }
             try{
-                Thread.sleep(1000);
+                Thread.sleep(1);
             }catch (InterruptedException e){
                 e.printStackTrace();
             }
         }
-        socket.setSoTimeout(1000);
+
+        socket.setSoTimeout(10);
         System.out.println(a);
         return a;
     }
