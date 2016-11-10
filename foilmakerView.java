@@ -96,12 +96,13 @@ public void run(){
                         String name = input.getText();
                         String password = String.valueOf(pass.getPassword());
                         send="CREATENEWUSER"+"--"+name+"--"+password;
+                        String msg = new String();
                         try {
-                            foilmakerClient.sendmessage(send);
+                            msg= foilmakerClient.sendmessage(send);
                         } catch (IOException e1) {
                             e1.printStackTrace();
                         }
-                        System.out.println(getStatus());
+                        System.out.println(getStatus(msg));
 
                     }
                 }
@@ -113,15 +114,16 @@ public void run(){
                         String name = input.getText();
                         String password = String.valueOf(pass.getPassword());
                         send="LOGIN"+"--"+name+"--"+password;
+                        String msg=new String();
                         try{
-                            foilmakerClient.sendmessage(send);
-                            System.out.println(getStatus());
+                          msg=  foilmakerClient.sendmessage(send);
+                            System.out.println(getStatus(msg));
                         }catch (IOException e1){
                             e1.printStackTrace();
                         }
-                        if(getStatus().equals("SUCCESS")){
+                        if(getStatus(msg).equals("SUCCESS")){
 
-                            usertoken = getUsertoken();
+                            usertoken = getUsertoken(msg);
                             Name = name;
                             mainPanel.add(Login2(),"2");
                             mainPanel.add(StartnewGame(),"3");
@@ -134,7 +136,7 @@ public void run(){
                             layout.show(mainPanel,"2");
                         }
                         else
-                            System.out.println(getStatus());
+                            System.out.println(getStatus(msg));
                         
                     }
                 }
@@ -179,26 +181,26 @@ return c1;
                     public void actionPerformed(ActionEvent e){
 
                         send = "STARTNEWGAME"+"--"+usertoken;
-
+String msg = new String();
                         try{
-                            foilmakerClient.sendmessage(send);
+                          msg=  foilmakerClient.sendmessage(send);
                         }catch (IOException e1){
                             e1.printStackTrace();
                         }
-                        if(getStatus().equals("SUCCESS")){
-                            key = getKey();
+                        if(getStatus(msg).equals("SUCCESS")){
+                            key = getKey(msg);
                             mainPanel.add(StartnewGame(),"3");
-                            mainPanel.add(JoinGame(),"4");
-                            mainPanel.add(Waiting(),"5");
-                            mainPanel.add(Suggestionwords(),"6");
-                            mainPanel.add(pickoption(),"7");
-                            mainPanel.add(receiveResults(),"8");
+//                            mainPanel.add(JoinGame(),"4");
+//                            mainPanel.add(Waiting(),"5");
+//                            mainPanel.add(Suggestionwords(),"6");
+//                            mainPanel.add(pickoption(),"7");
+//                            mainPanel.add(receiveResults(),"8");
                             layout.show(mainPanel,"3");
 
                         }
 
                         else
-                            System.out.println(getStatus());
+                            System.out.println(getStatus(msg));
 
                     }
                 }
@@ -230,6 +232,7 @@ return c1;
 
     public JPanel StartnewGame(){//when press the SNG button
 
+        System.out.println("herereree");
         GridBagConstraints s= new GridBagConstraints();
         s.fill = GridBagConstraints.BOTH;
         s.gridwidth=0;
@@ -261,7 +264,14 @@ return c1;
         SG.addActionListener(
                 new ActionListener() {
                     public void actionPerformed(ActionEvent e){
-                        send = "ALLPARTICIPANTSHAVEJOINED--"+usertoken+"--"+"key";//key will come from server
+                        send = "ALLPARTICIPANTSHAVEJOINED--"+usertoken+"--"+key;//key will come from server
+                       String msg=new String();
+                        try{
+                            msg=  foilmakerClient.sendmessage(send);
+                        }catch (IOException e1){
+                            e1.printStackTrace();
+                        }
+//                        (getStatus(msg).equals("SUCCESS")){
                         layout.show(mainPanel,"6");
 
                     }
@@ -324,15 +334,16 @@ final JTextField t1 = createText(4);
                     public void actionPerformed(ActionEvent e){
                         String key = t1.getText();
                         send = "JOINGAME--"+usertoken+"--"+key;
+                        String msg=new String();
                         try{
-                            foilmakerClient.sendmessage(send);
+                           msg=foilmakerClient.sendmessage(send);
                         }catch (IOException e1){
                             e1.printStackTrace();
                         }
-                        if(getStatus().equals("SUCCESS"))
+                        if(getStatus(msg).equals("SUCCESS"))
                         layout.show(mainPanel,"5");
                         else
-                            System.out.println(getStatus());
+                            System.out.println(getStatus(msg));
                     }
                 }
         );
@@ -594,10 +605,10 @@ return c1;
         return J;
     }
 
-    public String getStatus(){
-        if(foilmakerClient.reply==null)
+    public String getStatus(String message){
+        if(message==null)
             System.out.println("fuck you");
-        String msg =foilmakerClient.reply;
+        String msg =message;
         int l = msg.length();
         int a=msg.indexOf("--");
         String msg1 =msg.substring(a+2,l);
@@ -612,10 +623,10 @@ return c1;
         return status;
 
     }
-    public String getUsertoken(){
-        if(foilmakerClient.reply==null)
+    public String getUsertoken(String message){
+        if(message==null)
             System.out.println("fuck you");
-        String msg =foilmakerClient.reply;
+        String msg =message;
         int l = msg.length();
         int a=msg.indexOf("--");
         String msg1 =msg.substring(a+2,l);
@@ -631,10 +642,10 @@ return c1;
 
     }
 
-  public String getKey(){
-      if(foilmakerClient.reply==null)
+  public String getKey(String message){
+      if(message==null)
           System.out.println("fuck you");
-      String msg =foilmakerClient.reply;
+      String msg =message;
       int l = msg.length();
       int a=msg.indexOf("--");
       String msg1 =msg.substring(a+2,l);
