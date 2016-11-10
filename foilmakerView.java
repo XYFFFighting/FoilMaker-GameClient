@@ -1,8 +1,12 @@
+import com.sun.org.apache.regexp.internal.RE;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 
 /**
  * Created by Yufei Xu on 10/22/2016.
@@ -17,6 +21,14 @@ public class foilmakerView extends JFrame implements ActionListener{
     private String usertoken;
     private String key;
     private String msg;
+    private String participants;
+    private String question;
+    private String[] options=new String[3];
+    private int numJoin=1;
+    JButton SG = new JButton("Start Game");
+    JTextArea a = createTextArea(5,1, Color.YELLOW,"");
+    JTextArea b =createTextArea(5,23,Color.orange,"");
+    JTextArea c = createTextArea(12,23,Color.yellow,"");
 
     public foilmakerView(){
         String send = this.send;
@@ -115,22 +127,14 @@ public void run(){
                         send="LOGIN"+"--"+name+"--"+password;
                         try{
                           msg=  foilmakerController.sendmessage(send);
-                            System.out.println(getStatus(msg));
                         }catch (IOException e1){
                             e1.printStackTrace();
                         }
                         if(getStatus(msg).equals("SUCCESS")){
 
-                            usertoken = getUsertoken(msg);
+                            usertoken = getMessage(msg,3);
                             Name = name;
                             mainPanel.add(Login2(),"2");
-                            mainPanel.add(StartnewGame(),"3");
-                            mainPanel.add(JoinGame(),"4");
-                            mainPanel.add(Waiting(),"5");
-                            mainPanel.add(Suggestionwords(),"6");
-                            mainPanel.add(pickoption(),"7");
-                            mainPanel.add(receiveResults(),"8");
-
                             layout.show(mainPanel,"2");
                         }
                         else
@@ -186,7 +190,7 @@ return c1;
                             e1.printStackTrace();
                         }
                         if(getStatus(msg).equals("SUCCESS")){
-                            key = getKey(msg);
+                            key = getMessage(msg,3);
                             mainPanel.add(StartnewGame(),"3");
                             layout.show(mainPanel,"3");
 //                            mainPanel.add(JoinGame(),"4");
@@ -195,12 +199,18 @@ return c1;
 //                            mainPanel.add(pickoption(),"7");
 //                            mainPanel.add(receiveResults(),"8");
 
-                            System.out.println("nimahai");
+                            msg=null;
                            SwingWorker worker=new SwingWorker() {
                                @Override
                                protected Object doInBackground() throws Exception {
                                    try {
                                        msg=foilmakerController.recieve();
+
+                                       participants = getMessage(msg,1);
+                                       a.append(participants+"\n");
+                                       mainPanel.add(StartnewGame(),"3");
+                                       layout.show(mainPanel,"3");
+                                       SG.setEnabled(true);
                                    }catch (IOException e1){
                                        e1.printStackTrace();;
                                    }
@@ -272,28 +282,32 @@ return c1;
 
         pC1.add(t);
         pC.add(pC1);
-        JButton SG = new JButton("Start Game");
-        //SG.setEnabled(false);
+        SG = new JButton("Start Game");
+
+        SG.setEnabled(false);
+
         SG.addActionListener(
                 new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
-
                         send = "ALLPARTICIPANTSHAVEJOINED--" + usertoken + "--" + key;//key will come from server
                         try {
                             msg = foilmakerController.sendmessage(send);
+
                         } catch (IOException e1) {
                             e1.printStackTrace();
                         }
-                        if(getStatus(msg).equals("SUCCESS")){
-                            layout.show(mainPanel, "6");
+                        question = getMessage(msg,1);
 
-                        }
+                        mainPanel.add(Suggestionwords(),"6");
+                        layout.show(mainPanel, "6");
+
                     }
                 }
         );
         JPanel participants = new JPanel(new BorderLayout());
         participants.setBorder(BorderFactory.createTitledBorder("Participants"));
-        participants.add(createTextArea(5,1, Color.YELLOW));
+
+        participants.add(a);
         pC.add(participants);
 
         JPanel pC2 = new JPanel(new GridBagLayout());
@@ -346,9 +360,8 @@ final JTextField t1 = createText(4);
         SG.addActionListener(
                 new ActionListener() {
                     public void actionPerformed(ActionEvent e){
-                        String key = t1.getText();
+                        key = t1.getText();
                         send = "JOINGAME--"+usertoken+"--"+key;
-                        String msg=new String();
                         try{
                            msg=foilmakerController.sendmessage(send);
                         }catch (IOException e1){
@@ -358,6 +371,23 @@ final JTextField t1 = createText(4);
                         layout.show(mainPanel,"5");
                         else
                             System.out.println(getStatus(msg));
+
+                        msg=null;
+                        SwingWorker worker=new SwingWorker() {
+                            @Override
+                            protected Object doInBackground() throws Exception {
+                                try {
+                                    msg=foilmakerController.recieve();
+                                    question=getMessage(msg,1);
+                                    mainPanel.add(Suggestionwords(),"6");
+                                    layout.show(mainPanel,"6");
+                                }catch (IOException e1){
+                                    e1.printStackTrace();;
+                                }
+                                return null;
+                            }
+                        };
+                        worker.execute();
                     }
                 }
         );
@@ -430,22 +460,45 @@ return c1;
         pC.setBorder(BorderFactory.createCompoundBorder());
 
         pC1.add(S1,BorderLayout.NORTH);
-        pC1.add(createTextArea(10,5,Color.orange),BorderLayout.CENTER);
+        pC1.add(createTextArea(10,5,Color.orange,question),BorderLayout.CENTER);
 
         JPanel pC2 = new JPanel(new FlowLayout());
         pC2.setBorder(BorderFactory.createTitledBorder("Your Suggestion"));
-        JTextField text = createText(10);
+        final JTextField text = createText(10);
         pC2.add(text);
 
         pC.add(pC1, BorderLayout.NORTH);
         pC.add(pC2,BorderLayout.CENTER);
 
-        JButton SS = new JButton("Submit Suggestion");
+        final JButton SS = new JButton("Submit Suggestion");
         SS.addActionListener(
                 new ActionListener() {
                     public void actionPerformed(ActionEvent e){
-                        layout.show(mainPanel,"7");
-
+                        String suggestion=text.getText();
+                        send = "PLAYERSUGGESTION--"+usertoken+"--"+key+"--"+suggestion;
+                        try{
+                            foilmakerController.send(send);
+                        }catch (IOException e1){
+                            e1.printStackTrace();
+                        }
+                        SS.setEnabled(false);
+                        SwingWorker worker = new SwingWorker() {
+                            @Override
+                            protected Object doInBackground() throws Exception {
+                                try{
+                                msg = foilmakerController.recieve();
+                                    options[0]=getMessage(msg,1);
+                                    options[1]=getMessage(msg,2);
+                                    options[2]=getMessage(msg,3);
+                                    mainPanel.add(pickoption(),"7");
+                                    layout.show(mainPanel,"7");
+                                }catch (IOException e1){
+                                    e1.printStackTrace();
+                                }
+                                return null;
+                            }
+                        };
+                        worker.execute();
                     }
                 }
         );
@@ -488,10 +541,14 @@ return c1;
 
         JPanel pC2 = new JPanel(new GridBagLayout());
         pC2.setBorder(BorderFactory.createTitledBorder(""));
-        String[] choice = {"1","2","3"};//random choice
-        JRadioButton[] Choice = new JRadioButton[choice.length];
+        String[] choice = new String[numJoin+2];//random choice
+        final JRadioButton[] Choice = new JRadioButton[choice.length];
+        for(int i=0;i<numJoin+2;i++)
+            choice[i]=options[i];
+        ButtonGroup group = new ButtonGroup();
         for(int i=0;i<choice.length;i++){
             Choice[i] = new JRadioButton(choice[i]);
+            group.add(Choice[i]);
             pC2.add(Choice[i],s);
 
         }
@@ -502,11 +559,83 @@ return c1;
         pC.add(pC1, BorderLayout.NORTH);
         pC.add(pC2,BorderLayout.CENTER);
 
-        JButton SO = new JButton("Submit Option");
+        final JButton SO = new JButton("Submit Option");
         SO.addActionListener(
                 new ActionListener() {
+                    String seleted;
                     public void actionPerformed(ActionEvent e){
-                        layout.show(mainPanel,"8");
+                        SwingWorker worker = new SwingWorker() {
+                            @Override
+                            protected Object doInBackground() throws Exception {
+                                String msg2 = new String();
+                                try {
+                                    //BufferedReader inFromServer = new BufferedReader(new InputStreamReader(foilmakerController.socket.getInputStream()));
+
+                                    msg = foilmakerController.recieve();
+                                    msg2 = foilmakerController.recieve();
+                                    //while(inFromServer==null) {
+                                    //msg = inFromServer.readLine();
+                                    //msg2 = inFromServer.readLine();
+
+                                } catch (IOException e1) {
+                                    e1.printStackTrace();
+                                }
+                                String[] Result = new String[numJoin + 1];
+                                String[] player = new String[numJoin + 1];
+                                String[] Score = new String[numJoin + 1];
+                                String[] fool = new String[numJoin + 1];
+                                String[] fooled = new String[numJoin + 1];
+                                int j = 1;
+                                for (int i = 0; i < numJoin + 1; i++) {
+
+                                    player[i] = getMessage(msg, j);
+                                    Result[i] = getMessage(msg, j + 1);
+                                    Score[i] = getMessage(msg, j + 2);
+                                    fool[i] = getMessage(msg, j + 3);
+                                    fooled[i] = getMessage(msg, j + 4);
+                                    j = j + 5;
+                                }
+                                int t = 0;
+                                while (!player[t].equals(Name))
+                                    t++;
+                                String overall[] = new String[numJoin + 1];
+                                for (int i = 0; i < numJoin + 1; i++) {
+                                    overall[i] = player[i] + "==> Score: " + Score[i] + "|Fooled:" + fool[i] + " player(s)|Fooled by: " + fooled[i] + " player(s)";
+                                    c.append(overall[i] + "\n");
+                                }
+                                b.append(Result[t]);
+
+                                mainPanel.add(receiveResults(), "8");
+                                layout.show(mainPanel, "8");
+                                System.out.println("mgs2: " + msg2);
+                                String a1 = getMessage(msg2, 0);
+                                if (a1.equals("NEWGAMEWORD")) {
+                                    question = getMessage(msg2, 1);
+                                }
+                                if (a1.equals("GAMEOVER")) {
+                                    mainPanel.add(END(), "9");
+                                    layout.show(mainPanel, "9");
+                                }
+
+                                return null;
+                            }
+                        };
+                        worker.execute();
+                        for(int i=0;i<numJoin+2;i++){
+                            if(Choice[i].isSelected()) {
+                                seleted = options[i];
+                                SO.setEnabled(false);
+                            }
+                        }
+                        send="PLAYERCHOICE--"+usertoken+"--"+key+"--"+seleted;
+
+                        try{
+                            foilmakerController.send(send);
+                        }catch (IOException e1){
+                            e1.printStackTrace();
+                        }
+
+
 
                     }
                 }
@@ -547,20 +676,24 @@ return c1;
         pC.setBorder(BorderFactory.createCompoundBorder());
 
 
-        pC1.add(createTextArea(5,23,Color.orange));
+        pC1.add(b);
 
         JPanel pC2 = new JPanel(new FlowLayout());
         pC2.setBorder(BorderFactory.createTitledBorder("Overall Results"));
-        pC2.add(createTextArea(15,23,Color.yellow));
+        JScrollPane scroll = new JScrollPane(c);
+        pC2.add(scroll);
 
         pC.add(pC1, BorderLayout.NORTH);
         pC.add(pC2,BorderLayout.CENTER);
 
-        JButton SR = new JButton("Next Round");
+        final JButton SR = new JButton("Next Round");
         SR.addActionListener(
                 new ActionListener() {
                     public void actionPerformed(ActionEvent e){
+                        mainPanel.add(Suggestionwords(),"6");
                         layout.show(mainPanel,"6");
+
+
 
                     }
                 }
@@ -579,6 +712,53 @@ return c1;
 return c1;
     }
 
+    public JPanel END(){
+        GridBagConstraints s= new GridBagConstraints();
+        s.fill = GridBagConstraints.BOTH;
+        s.gridwidth=0;
+        s.weightx=0;
+        s.weighty=0;
+
+        this.setTitle("FoilMaker");
+        JLabel name = J(Name);//"Bob" will come from Controller
+        JPanel c1 = new JPanel();
+        c1.setLayout(new BorderLayout());
+
+        JPanel pN = new JPanel(new FlowLayout());
+        pN.add(name);
+
+        JPanel pC = new JPanel(new BorderLayout());
+        JPanel pC1 = new JPanel(new GridBagLayout());
+        pC1.setBorder(BorderFactory.createTitledBorder("Round Result"));
+        pC.setBorder(BorderFactory.createCompoundBorder());
+
+
+        pC1.add(b);
+
+        JPanel pC2 = new JPanel(new FlowLayout());
+        pC2.setBorder(BorderFactory.createTitledBorder("Overall Results"));
+        JScrollPane scroll = new JScrollPane(c);
+        pC2.add(scroll);
+
+        pC.add(pC1, BorderLayout.NORTH);
+        pC.add(pC2,BorderLayout.CENTER);
+
+        final JButton SR = new JButton("Next Round");
+        SR.setEnabled(false);
+        JPanel pC3 = new JPanel(new GridBagLayout());
+        pC3.add(SR);
+        pC.add(pC3, BorderLayout.SOUTH);
+
+        JPanel pS = new JPanel(new GridLayout(0,1));
+        JLabel GS = J("Game over!");
+        pS.add(GS);
+
+        c1.add(pN, BorderLayout.NORTH);
+        c1.add(pC, BorderLayout.CENTER);
+        c1.add(pS,BorderLayout.SOUTH);
+        return c1;
+    }
+
 
 
 
@@ -593,14 +773,12 @@ return c1;
         return input;
     }
 
-    public JPanel createTextArea(int a, int b, Color y){
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(0,1));
+    public JTextArea createTextArea(int a, int b, Color y, String word){
         JTextArea output = new JTextArea(a,b);
         output.setEditable(false);
         output.setBackground(y);
-        panel.add(output);
-        return panel;
+        output.append(word);
+        return output;
     }
 
     //Create Password Text
@@ -620,8 +798,6 @@ return c1;
     }
 
     public String getStatus(String message){
-        if(message==null)
-            System.out.println("fuck you");
         String msg =message;
         int l = msg.length();
         int a=msg.indexOf("--");
@@ -633,45 +809,24 @@ return c1;
         String msg3 = msg2.substring(0+2,l);
         a=msg3.indexOf("--");
         String status = msg3.substring(0,a);
-
         return status;
 
     }
-    public String getUsertoken(String message){
-        if(message==null)
-            System.out.println("fuck you");
-        String msg =message;
-        int l = msg.length();
-        int a=msg.indexOf("--");
-        String msg1 =msg.substring(a+2,l);
-        l = msg1.length();
-        a =msg1.indexOf("--");
-        String msg2 = msg1.substring(a,l);
-        l = msg2.length();
-        String msg3 = msg2.substring(0+2,l);
-        a=msg3.indexOf("--");
-        l=msg3.length();
-        String Usertoken = msg3.substring(a+2,l);
-        return Usertoken;
 
-    }
+    public String getMessage(String message, int i){
+        for(int j=0;j<i;j++) {
+            int l = message.length();
+            int a = message.indexOf("-");
+            message = message.substring(a + 2, l);
+        }
+        int a = message.indexOf("-");
+        if(a==-1)
+            return message;
+        else
+            message = message.substring(0,a);
+        return message;
 
-  public String getKey(String message){
-      if(message==null)
-          System.out.println("fuck you");
-      String msg =message;
-      int l = msg.length();
-      int a=msg.indexOf("--");
-      String msg1 =msg.substring(a+2,l);
-      l = msg1.length();
-      a =msg1.indexOf("--");
-      String msg2 = msg1.substring(a,l);
-      l = msg2.length();
-      String msg3 = msg2.substring(0+2,l);
-      a=msg3.indexOf("--");
-      l=msg3.length();
-      String Usertoken = msg3.substring(a+2,l);
-      return Usertoken;
+
     }
 
 
