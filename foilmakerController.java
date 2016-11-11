@@ -15,11 +15,12 @@ public class foilmakerController{
     public static String reply;
 
     public static void main(String[] args) throws IOException {
+        Scanner scanner = new Scanner(System.in);
         foilmakerView f = new foilmakerView();
         int serverPort;
-
+System.out.println("Please Enter the port number");
+        serverPort = scanner.nextInt();
         String serverIP = "localhost";
-        serverPort = 5000;
 
 
         try {
@@ -31,6 +32,7 @@ public class foilmakerController{
 
         }
 f.run();
+
 
 }
 public static void send(String inputLine)throws IOException{
@@ -49,7 +51,7 @@ public static void send(String inputLine)throws IOException{
         if(reply == null) {
             try {
                 reply = inFromServer.readLine();
-                System.out.println(reply);
+                //System.out.println(reply);
             } catch (SocketTimeoutException e) {
                 e.printStackTrace();
             }
@@ -61,7 +63,7 @@ public static void send(String inputLine)throws IOException{
 
     public static String recieve() throws IOException {
 
-        socket.setSoTimeout(10);
+        //socket.setSoTimeout(1);
         String a = null;
         while(a==null){
             try {
@@ -71,15 +73,17 @@ public static void send(String inputLine)throws IOException{
             }catch (SocketTimeoutException e){
 
             }
+            /*
             try{
                 Thread.sleep(1);
             }catch (InterruptedException e){
                 e.printStackTrace();
             }
+            */
         }
 
-        socket.setSoTimeout(10);
-        System.out.println(a);
+        //socket.setSoTimeout(1);
+        //System.out.println(a);
         return a;
     }
 
