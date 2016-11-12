@@ -41,25 +41,25 @@ public static void send(String inputLine)throws IOException{
 }
 
 
-    public static String sendmessage(String inputLine) throws IOException {
+    public static void sendmessage(String inputLine) throws IOException {
         PrintWriter outToServer = new PrintWriter(socket.getOutputStream(), true);
         BufferedReader inFromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         outToServer.println(inputLine);
 
 
-        reply = null;
-        if(reply == null) {
-            try {
-                reply = inFromServer.readLine();
+        //reply = null;
+        //while(reply == null) {
+            //try {
+                //reply = inFromServer.readLine();
                 //System.out.println(reply);
-            } catch (SocketTimeoutException e) {
-                e.printStackTrace();
+            //} catch (SocketTimeoutException e) {
+               // e.printStackTrace();
             }
 
-        }
+        //}
 
-        return reply;
-    }
+        //return reply;
+    //}
 
     public static String recieve() throws IOException {
 
@@ -83,7 +83,7 @@ public static void send(String inputLine)throws IOException{
         }
 
         //socket.setSoTimeout(1);
-        //System.out.println(a);
+        System.out.println(a);
         return a;
     }
 
