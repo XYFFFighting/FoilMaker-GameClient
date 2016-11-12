@@ -662,10 +662,13 @@ return c1;
                                 while (!player[t].equals(Name))
                                     t++;
                                 String overall[] = new String[numJoin + 1];
+                                c = createTextArea(12,23,Color.yellow,"");
                                 for (int i = 0; i < numJoin + 1; i++) {
                                     overall[i] = player[i] + "==> Score: " + Score[i] + "|Fooled:" + fool[i] + " player(s)|Fooled by: " + fooled[i] + " player(s)";
+
                                     c.append(overall[i] + "\n");
                                 }
+                                b =createTextArea(5,23,Color.orange,"");
                                 b.append(Result[t]+"\n");
 
                                 mainPanel.add(receiveResults(), "8");
