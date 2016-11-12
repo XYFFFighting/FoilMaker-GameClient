@@ -23,17 +23,18 @@ public class foilmakerView extends JFrame implements ActionListener{
     private String usertoken;
     private String key;
     private String msg;
+    private String msg1;
     private String participants;
     private String question;
-    private String[] options=new String[3];
-    private int numJoin=1;
+    private String[] options;
+    private int numJoin;
     private boolean startGame=false;
+    private boolean allsuggest=false;
     JButton SG = new JButton("Start Game");
     JTextArea a = createTextArea(5,1, Color.YELLOW,"");
     JTextArea b =createTextArea(5,23,Color.orange,"");
     JTextArea c = createTextArea(12,23,Color.yellow,"");
     JLabel Newusercreated = new JLabel("Welcome");
-
     public foilmakerView(){
         String send = this.send;
         String Name = this.Name;
@@ -49,7 +50,6 @@ public void run(){
     mainPanel.add(JoinGame(),"4");
     mainPanel.add(Waiting(),"5");
     mainPanel.add(Suggestionwords(),"6");
-    mainPanel.add(pickoption(),"7");
     mainPanel.add(receiveResults(),"8");
     add(mainPanel);
     setLocation(300,500);
@@ -124,7 +124,8 @@ addWindowListener(new WindowAdapter() {
                         send="CREATENEWUSER"+"--"+name+"--"+password;
 
                         try {
-                            msg= foilmakerController.sendmessage(send);
+                            foilmakerController.sendmessage(send);
+                            msg = foilmakerController.recieve();
                             if(getStatus(msg).equals("SUCCESS")) {
                                 Newusercreated = new JLabel("New user created");
                             }
@@ -150,7 +151,8 @@ addWindowListener(new WindowAdapter() {
                         String password = String.valueOf(pass.getPassword());
                         send="LOGIN"+"--"+name+"--"+password;
                         try{
-                          msg=  foilmakerController.sendmessage(send);
+                          foilmakerController.sendmessage(send);
+                            msg=foilmakerController.recieve();
                         }catch (IOException e1){
                             e1.printStackTrace();
                         }
@@ -160,6 +162,11 @@ addWindowListener(new WindowAdapter() {
                             Name = name;
                             mainPanel.add(Login2(),"2");
                             layout.show(mainPanel,"2");
+                            mainPanel.add(StartnewGame(),"3");
+                            mainPanel.add(JoinGame(),"4");
+                            mainPanel.add(Waiting(),"5");
+                            mainPanel.add(Suggestionwords(),"6");
+                            mainPanel.add(receiveResults(),"8");
                         }
                         else
                             System.out.println(getStatus(msg));
@@ -209,7 +216,8 @@ return c1;
                         send = "STARTNEWGAME"+"--"+usertoken;
 
                         try{
-                          msg=  foilmakerController.sendmessage(send);
+                          foilmakerController.sendmessage(send);
+                            msg=foilmakerController.recieve();
                         }catch (IOException e1){
                             e1.printStackTrace();
                         }
@@ -223,21 +231,34 @@ return c1;
 //                            mainPanel.add(pickoption(),"7");
 //                            mainPanel.add(receiveResults(),"8");
 
-                            msg=null;
                            SwingWorker worker=new SwingWorker() {
                                @Override
                                protected Object doInBackground() throws Exception {
-                                    {try {
-                                           msg = foilmakerController.recieve();
-                                           participants = getMessage(msg, 1);
-                                           a.append(participants + "\n");
-                                           mainPanel.add(StartnewGame(), "3");
-                                           layout.show(mainPanel, "3");
-                                           SG.setEnabled(true);
-                                       } catch (IOException e1) {
-                                           e1.printStackTrace();
-                                           ;
-                                       }
+                                    { while(startGame!=true){
+                                        try {
+                                            participants = null;
+                                            msg1 = foilmakerController.recieve();
+                                            //System.out.println("out"+msg1);
+                                            if (startGame == false){
+                                                participants = getMessage(msg1, 1);
+                                            if (participants != null) {
+                                                a.append(participants + "\n");
+                                                mainPanel.add(StartnewGame(), "3");
+                                                layout.show(mainPanel, "3");
+                                                SG.setEnabled(true);
+                                            }
+                                        }
+                                        if(startGame==true){
+                                            msg=msg1;
+                                            question = getMessage(msg,1);
+                                            mainPanel.add(Suggestionwords(),"6");
+                                            layout.show(mainPanel, "6");
+                                        }
+                                        } catch (IOException e1) {
+                                            e1.printStackTrace();
+                                            ;
+                                        }
+                                    }
 
                                    }
                                return null;}
@@ -315,18 +336,18 @@ return c1;
         SG.addActionListener(
                 new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
+                        startGame=true;
                         send = "ALLPARTICIPANTSHAVEJOINED--" + usertoken + "--" + key;//key will come from server
-                        try {
-                            msg = foilmakerController.sendmessage(send);
-                            startGame=true;
 
+                        try {
+
+                            foilmakerController.sendmessage(send);
+                            //msg=foilmakerController.recieve();
                         } catch (IOException e1) {
                             e1.printStackTrace();
                         }
-                        question = getMessage(msg,1);
 
-                        mainPanel.add(Suggestionwords(),"6");
-                        layout.show(mainPanel, "6");
+
 
                     }
                 }
@@ -386,35 +407,40 @@ final JTextField t1 = createText(4);
         JButton SG = new JButton("Join Game");
         SG.addActionListener(
                 new ActionListener() {
-                    public void actionPerformed(ActionEvent e){
+                    public void actionPerformed(ActionEvent e) {
                         key = t1.getText();
-                        send = "JOINGAME--"+usertoken+"--"+key;
-                        try{
-                           msg=foilmakerController.sendmessage(send);
-                        }catch (IOException e1){
+                        send = "JOINGAME--" + usertoken + "--" + key;
+                        try {
+                            foilmakerController.sendmessage(send);
+                            msg=foilmakerController.recieve();
+                        } catch (IOException e1) {
                             e1.printStackTrace();
                         }
-                        if(getStatus(msg).equals("SUCCESS"))
-                        layout.show(mainPanel,"5");
-                        else
-                            System.out.println(getStatus(msg));
+                        if (getStatus(msg).equals("SUCCESS")) {
+                            layout.show(mainPanel, "5");
 
-                        msg=null;
-                        SwingWorker worker=new SwingWorker() {
-                            @Override
-                            protected Object doInBackground() throws Exception {
-                                try {
-                                    msg=foilmakerController.recieve();
-                                    question=getMessage(msg,1);
-                                    mainPanel.add(Suggestionwords(),"6");
-                                    layout.show(mainPanel,"6");
-                                }catch (IOException e1){
-                                    e1.printStackTrace();;
+
+
+
+                            msg = null;
+                            SwingWorker worker = new SwingWorker() {
+                                @Override
+                                protected Object doInBackground() throws Exception {
+                                    try {
+                                        msg = foilmakerController.recieve();
+                                        question = getMessage(msg, 1);
+                                        mainPanel.add(Suggestionwords(), "6");
+                                        layout.show(mainPanel, "6");
+                                    } catch (IOException e1) {
+                                        e1.printStackTrace();
+                                        ;
+                                    }
+                                    return null;
                                 }
-                                return null;
-                            }
-                        };
-                        worker.execute();
+                            };
+                            worker.execute();
+                        }else
+                            System.out.println(getStatus(msg));
                     }
                 }
         );
@@ -506,9 +532,17 @@ return c1;
                             protected Object doInBackground() throws Exception {
                                 try{
                                     msg = foilmakerController.recieve();
-                                    options[0]=getMessage(msg,1);
-                                    options[1]=getMessage(msg,2);
-                                    options[2]=getMessage(msg,3);
+                                    numJoin=0;
+                                    int j=0;
+                                    while(getMessage(msg,j)!=null){
+                                        j++;
+                                    }
+                                    numJoin=j-3;
+                                    System.out.println(numJoin);
+                                    options = new String[numJoin+2];
+                                    for(int i=0; i<numJoin+2;i++) {
+                                        options[i] = getMessage(msg, i+1);
+                                    }
                                     mainPanel.add(pickoption(),"7");
                                     layout.show(mainPanel,"7");
                                 }catch (IOException e1){
@@ -632,7 +666,7 @@ return c1;
                                     overall[i] = player[i] + "==> Score: " + Score[i] + "|Fooled:" + fool[i] + " player(s)|Fooled by: " + fooled[i] + " player(s)";
                                     c.append(overall[i] + "\n");
                                 }
-                                b.append(Result[t]);
+                                b.append(Result[t]+"\n");
 
                                 mainPanel.add(receiveResults(), "8");
                                 layout.show(mainPanel, "8");
@@ -703,6 +737,7 @@ return c1;
         JPanel pC1 = new JPanel(new GridBagLayout());
         pC1.setBorder(BorderFactory.createTitledBorder("Round Result"));
         pC.setBorder(BorderFactory.createCompoundBorder());
+
 
 
         pC1.add(b);
@@ -846,6 +881,8 @@ return c1;
         for(int j=0;j<i;j++) {
             int l = message.length();
             int a = message.indexOf("-");
+            if(a==-1)
+                return null;
             message = message.substring(a + 2, l);
         }
         int a = message.indexOf("-");
